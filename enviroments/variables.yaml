@@ -1,14 +1,12 @@
-db-node:
-  network:
-    hostname: db-node
-    forwarded_port:
-      guest: 3306
-      host: 8084
-    private_ip: 10.0.0.4
-
-  oracle:
-    host: 10.0.0.4
-    port: 3306
-    dbName: ZSBD
-    userName: admin
-    dbPass: admin
+general:
+  box: 'oraclebase/oracle-8'
+  vm_name: 'ol8_21_xe'
+  mem_size: 4096
+  cpus: 2
+  non_rotational: 'on' # SSD
+  public_ip: '192.168.56.140'
+forwarded_ports:
+  - { guest: 8080, host: 8080 }
+  - { guest: 8443, host: 8443 }
+  - { guest: 1521, host: 1521 }
+  - { guest: 5500, host: 5500 }
