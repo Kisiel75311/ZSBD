@@ -4,7 +4,7 @@
 require 'yaml'
 
 # Odczytaj plik variables.yaml
-env_vars = YAML.load_file('variables.yaml')
+env_vars = YAML.load_file('enviroments/variables.yaml')
 
 Vagrant.configure("2") do |config|
   config.vm.box = env_vars['general']['box']

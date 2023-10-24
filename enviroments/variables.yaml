@@ -1,8 +1,8 @@
 general:
   box: 'oraclebase/oracle-8'
-  vm_name: 'ol8_21_xe'
-  mem_size: 4096
-  cpus: 2
+  vm_name: 'ZSDB'
+  mem_size: 6096
+  cpus: 4
   non_rotational: 'on' # SSD
   public_ip: '192.168.56.140'
 forwarded_ports:
