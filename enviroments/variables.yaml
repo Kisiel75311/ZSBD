@@ -1,0 +1,14 @@
+db-node:
+  network:
+    hostname: db-node
+    forwarded_port:
+      guest: 3306
+      host: 8084
+    private_ip: 10.0.0.4
+
+  oracle:
+    host: 10.0.0.4
+    port: 3306
+    dbName: ZSBD
+    userName: admin
+    dbPass: admin
