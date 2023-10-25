@@ -11,8 +11,8 @@ cx_Oracle.init_oracle_client(
 fake = Faker('pl_PL')
 
 # Specify connection details
-username = "c##admin"
-password = "admin"
+username = "c##zsbd"
+password = "zsbd"
 hostname = "localhost"
 port = "1521"
 sid = "XE"
@@ -27,8 +27,8 @@ def insert_data(cursor, table_name, insert_query, data):
 
 # Seed the Price_lists table
 price_list_insert_query = """
-    INSERT INTO Price_lists (id, products_fk, purchase, netto, brutto, sale)
-    VALUES (price_list_seq.nextval, :products_fk, :purchase, :netto, :brutto, :sale)
+    INSERT INTO Price_lists (id, products_fk, purchase, netto, brutto, sale, valid_date)
+    VALUES (price_list_seq.nextval, :products_fk, :purchase, :netto, :brutto, :sale, :valid_date)
 """
 
 
@@ -36,16 +36,28 @@ price_list_insert_query = """
 with cx_Oracle.connect(username, password, dsn) as connection:
     with connection.cursor() as cursor:
         print("Connected successfully!")
+        cursor.execute("SELECT MIN(id), MAX(id) FROM products")
+        min_id, max_id = cursor.fetchone()
         for _ in tqdm(range(100000)):
+            purchase_price = round(random.uniform(1, 1000), 2)
+            netto_price = round(random.uniform(1, 1000), 2)
+            brutto_price = round(random.uniform(1, 1000), 2)
+
+            # Ensure netto price is never higher than brutto price
+            if netto_price > brutto_price:
+                netto_price, brutto_price = brutto_price, netto_price  # swap their values
+
+            sale_price = round(random.uniform(1, 1000), 2)
+            valid_date = fake.date_between(start_date='-10y', end_date='today')
+
             insert_data(cursor, "Price_lists", price_list_insert_query, {
-                'products_fk': random.randint(220301, 320300),
-                'purchase': round(random.uniform(1, 1000), 2),
-                'netto': round(random.uniform(1, 1000), 2),
-                'brutto': round(random.uniform(1, 1000), 2),
-                'sale': round(random.uniform(1, 1000), 2)
+                'products_fk': random.randint(min_id, max_id),
+                'purchase': purchase_price,
+                'netto': netto_price,
+                'brutto': brutto_price,
+                'sale': sale_price,
+                'valid_date': valid_date
             })
-
-
 
     connection.commit()  # Commit after all inserts
 

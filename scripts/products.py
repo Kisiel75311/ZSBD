@@ -13,8 +13,8 @@ fake = Faker('pl_PL')
 fake.add_provider(faker_commerce.Provider)
 
 # Specify connection details
-username = "c##admin"
-password = "admin"
+username = "c##zsbd"
+password = "zsbd"
 hostname = "localhost"
 port = "1521"
 sid = "XE"
@@ -38,7 +38,8 @@ generated_names = set()
 with cx_Oracle.connect(username, password, dsn) as connection:
     with connection.cursor() as cursor:
         print("Connected successfully!")
-
+        cursor.execute("SELECT MIN(id), MAX(id) FROM contractors")
+        min_id, max_id = cursor.fetchone()
         for _ in tqdm(range(100000)):  # Inserting 6326 products
 
             name = fake.ecommerce_name()
@@ -64,7 +65,7 @@ with cx_Oracle.connect(username, password, dsn) as connection:
                 'product_width': round(random.uniform(0.01, 1000), 2),
                 'product_length': round(random.uniform(0.01, 1000), 2),
                 'specification': fake.text(max_nb_chars=200),
-                'contractor_fk': random.randint(3547, 53546)
+                'contractor_fk': random.randint(min_id, max_id)
             })
 
         connection.commit()  # Commit after all inserts

@@ -5,8 +5,8 @@ cx_Oracle.init_oracle_client(
     lib_dir=r"C:\Users\szymon.kisiela\Downloads\instantclient-basic-windows.x64-21.11.0.0.0dbru\instantclient_21_11")
 
 # Specify connection details
-username = "c##admin"
-password = "admin"
+username = "c##zsbd"
+password = "zsbd"
 hostname = "localhost"
 port = "1521"
 sid = "XE"
@@ -21,7 +21,7 @@ def insert_data(cursor, table_name, insert_query, data):
 
 
 # Roles to seed
-roles_to_seed = ["accountant", "admin", "customer", "sales representative", "warehouseman", "warehouse manager", "tech support"]
+roles_to_seed = ["accountant", "zsbd", "customer", "sales representative", "warehouseman", "warehouse manager", "tech support"]
 
 # Seed the Roles table
 role_insert_query = """

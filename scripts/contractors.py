@@ -11,8 +11,8 @@ cx_Oracle.init_oracle_client(
 fake = Faker('pl_PL')
 
 # Specify connection details
-username = "c##admin"
-password = "admin"
+username = "c##zsbd"
+password = "zsbd"
 hostname = "localhost"
 port = "1521"
 sid = "XE"

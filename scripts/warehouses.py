@@ -11,8 +11,8 @@ cx_Oracle.init_oracle_client(
 fake = Faker('pl_PL')
 
 # Specify connection details
-username = "c##admin"
-password = "admin"
+username = "c##zsbd"
+password = "zsbd"
 hostname = "localhost"
 port = "1521"
 sid = "XE"
@@ -38,12 +38,46 @@ warehouse_insert_query = """
 with cx_Oracle.connect(username, password, dsn) as connection:
     with connection.cursor() as cursor:
         print("Connected successfully!")
-        for _ in tqdm(range(50000)):
+        cursor.execute("SELECT MIN(id), MAX(id) FROM companies")
+        min_id, max_id = cursor.fetchone()
+        for _ in tqdm(range(10000)):
+            # Get min and max values from companies table
             insert_data(cursor, "Warehouses", warehouse_insert_query, {
                 'name': fake.company_suffix(),
                 'address': fake.address(),
-                'companies_fk': random.randint(5414, 55411)  # 50 tys? nie wiem
+                'companies_fk': random.randint(min_id+1, max_id-1)  # 50 tys? nie wiem
             })
         connection.commit()  # Commit after all inserts
 
 print("Operation completed!")
+
+
+# import numpy as np
+#
+# # ...
+#
+# # Connect to the database and insert data
+# with cx_Oracle.connect(username, password, dsn) as connection:
+#     with connection.cursor() as cursor:
+#         print("Connected successfully!")
+#
+#         # Get min and max values from companies table
+#         cursor.execute("SELECT MIN(id), MAX(id) FROM companies")
+#         min_id, max_id = cursor.fetchone()
+#
+#         for _ in tqdm(range(50000)):
+#             # Generate a list of company ids using normal distribution
+#             company_ids = np.random.normal(loc=(min_id+max_id)/2, scale=(max_id-min_id)/6, size=30).astype(int)
+#
+#             # Ensure the generated company ids are within the valid range
+#             company_ids = [max(min_id, min(max_id, company_id)) for company_id in company_ids]
+#
+#             for company_id in company_ids:
+#                 insert_data(cursor, "Warehouses", warehouse_insert_query, {
+#                     'name': fake.company_suffix(),
+#                     'address': fake.address(),
+#                     'companies_fk': company_id
+#                 })
+#         connection.commit()  # Commit after all inserts
+#
+# print("Operation completed!")
