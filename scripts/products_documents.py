@@ -1,10 +1,14 @@
 import cx_Oracle
+from faker import Faker
 import random
 from tqdm import tqdm
 
 # Initialize the Oracle client
 cx_Oracle.init_oracle_client(
     lib_dir=r"C:\Users\szymon.kisiela\Downloads\instantclient-basic-windows.x64-21.11.0.0.0dbru\instantclient_21_11")
+
+# Initialize the Faker instance
+fake = Faker('pl_PL')
 
 # Specify connection details
 username = "c##zsbd"
@@ -15,11 +19,9 @@ sid = "XE"
 dsn = cx_Oracle.makedsn(hostname, port, sid)
 
 
-def insert_data(table_name, insert_query, data):
+def insert_data(cursor, table_name, insert_query, data):
     try:
-        with cx_Oracle.connect(username, password, dsn) as connection:
-            with connection.cursor() as cursor:
-                cursor.execute(insert_query, data)
+        cursor.execute(insert_query, data)
     except cx_Oracle.Error as error:
         print(f"Error occurred when inserting into {table_name}:", error)
 
@@ -31,24 +33,36 @@ product_document_insert_query = """
 """
 
 
+def get_existing_ids(cursor, table_name, column_name):
+    """
+    Pobiera istniejące ID z podanej tabeli i kolumny.
+    """
+    query = f"SELECT {column_name} FROM {table_name}"
+    cursor.execute(query)
+    return [row[0] for row in cursor.fetchall()]
+
 
 # Connect to the database and insert data
 with cx_Oracle.connect(username, password, dsn) as connection:
     with connection.cursor() as cursor:
         print("Connected successfully!")
-        # Fetch min and max IDs for relevant tables
-        cursor.execute("SELECT MIN(id), MAX(id) FROM documents")
-        min_doc_id, max_doc_id = cursor.fetchone()
 
-        cursor.execute("SELECT MIN(id), MAX(id) FROM products")
-        min_prod_id, max_prod_id = cursor.fetchone()
+        # Pobierz dostępne ID z tabeli Documents (załóżmy, że kolumna z ID nazywa się 'document_id')
+        available_document_ids = get_existing_ids(cursor, "documents", "ID")
+        available_product_ids = get_existing_ids(cursor, "products",
+                                                 "ID")  # zakładając, że istnieje taka tabela
+
         for _ in tqdm(range(100000)):
-            insert_data("Product_documents", product_document_insert_query, {
-                'document_fk': random.randint(min_doc_id, max_doc_id+1),
-                'product_fk': random.randint(min_prod_id, max_prod_id+1),
+            document_fk = random.choice(available_document_ids)
+            product_fk = random.choice(available_product_ids)
+
+            insert_data(cursor, "Product_documents", product_document_insert_query, {
+                'document_fk': document_fk,
+                'product_fk': product_fk,
                 'amount': round(random.uniform(0.01, 1000), 2),
                 'product_value': round(random.uniform(0.01, 1000), 2)
             })
-        connection.commit()
+
+        connection.commit()  # Commit after all inserts
 
 print("Operation completed!")

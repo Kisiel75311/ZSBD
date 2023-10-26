@@ -36,23 +36,38 @@ document_insert_query = """
     TO_TIMESTAMP(:last_modification, 'DD-MON-RR HH24.MI.SS.FF'), TO_TIMESTAMP(:deleted, 'DD-MON-RR HH24.MI.SS.FF'), :deleted_by_fk, :document_value)
 """
 
+def get_existing_ids(cursor, table_name, column_name):
+    """
+    Pobiera istniejące ID z podanej tabeli i kolumny.
+    """
+    query = f"SELECT {column_name} FROM {table_name}"
+    cursor.execute(query)
+    return [row[0] for row in cursor.fetchall()]
+
+def get_existing_document_numbers(cursor):
+    """
+    Pobiera istniejące numery dokumentów z bazy danych.
+    """
+    query = "SELECT document_number FROM Documents"
+    cursor.execute(query)
+    return {row[0] for row in cursor.fetchall()}
+
 generated_document_number = set()
 
 with cx_Oracle.connect(username, password, dsn) as connection:
     with connection.cursor() as cursor:
         print("Connected successfully!")
 
-        # Fetch min and max IDs for relevant tables
-        cursor.execute("SELECT MIN(id), MAX(id) FROM users")
-        min_user_id, max_user_id = cursor.fetchone()
+        available_users_ids = get_existing_ids(cursor, "users", "ID")
+        available_contractors_ids = get_existing_ids(cursor, "contractors", "ID")
 
-        cursor.execute("SELECT MIN(id), MAX(id) FROM contractors")
-        min_contractor_id, max_contractor_id = cursor.fetchone()
+        generated_document_number.update(get_existing_document_numbers(cursor))
 
-        for _ in tqdm(range(100000)):
-            # created_date = fake.date_time_this_decade() # ostatnia
-            # last_modification_date = fake.date_time_between_dates(created_date, datetime.datetime.now())
-            # deleted_date = fake.date_time_between_dates(last_modification_date, datetime.datetime.now())
+        for _ in tqdm(range(251233)):
+
+            user_fk = random.choice(available_users_ids)
+            contractor_fk = random.choice(available_contractors_ids)
+
             document_number = fake.unique.random_int(min=1, max=1000000)
             while document_number in generated_document_number:
                 document_number = fake.unique.random_int(min=1, max=1000000)
@@ -84,7 +99,7 @@ with cx_Oracle.connect(username, password, dsn) as connection:
                 deleted_date = fake.date_time_between_dates(
                     datetime_start=created_date, datetime_end=last_modification_date
                 )
-                deleted_by_fk = random.randint(min_user_id, max_user_id)
+                deleted_by_fk = user_fk
             else:
                 deleted_date = None
                 deleted_by_fk = None
@@ -93,11 +108,11 @@ with cx_Oracle.connect(username, password, dsn) as connection:
                 'document_number': document_number,
                 'document_type_fk': random.randint(1, 10),
                 'document_date': fake.date_this_decade(),
-                'contractor_fk': random.randint(min_contractor_id, max_contractor_id + 1),
-                'client_fk': random.randint(min_user_id, max_user_id + 1),
-                'created_by_fk': random.randint(min_user_id, max_user_id +1),
+                'contractor_fk': contractor_fk,
+                'client_fk': user_fk,
+                'created_by_fk':user_fk,
                 'created': created_date.strftime('%d-%B-%y %H.%M.%S.%f'),
-                'modified_by_fk': random.randint(min_user_id, max_user_id + 1),
+                'modified_by_fk': user_fk,
                 'last_modification': last_modification_date.strftime('%d-%B-%y %H.%M.%S.%f'),
                 'deleted': deleted_date.strftime('%d-%B-%y %H.%M.%S.%f') if deleted_date else None,
                 'deleted_by_fk': deleted_by_fk,

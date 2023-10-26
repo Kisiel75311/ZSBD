@@ -38,7 +38,7 @@ with cx_Oracle.connect(username, password, dsn) as connection:
         print("Connected successfully!")
         cursor.execute("SELECT MIN(id), MAX(id) FROM products")
         min_id, max_id = cursor.fetchone()
-        for _ in tqdm(range(100000)):
+        for _ in tqdm(range(551249)):
             purchase_price = round(random.uniform(1, 1000), 2)
             netto_price = round(random.uniform(1, 1000), 2)
             brutto_price = round(random.uniform(1, 1000), 2)
