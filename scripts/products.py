@@ -36,6 +36,17 @@ product_insert_query = """
 
 generated_names = set()
 
+def generate_random_text(min_chars=200, max_chars=2000):
+    text = ""
+    while len(text) < min_chars:
+        text += fake.sentence()
+    while len(text) < max_chars:
+        next_sentence = fake.sentence()
+        if len(text) + len(next_sentence) <= max_chars:
+            text += " " + next_sentence
+        else:
+            break
+    return text
 
 def get_existing_ids(cursor, table_name, column_name):
     """
@@ -92,7 +103,7 @@ with cx_Oracle.connect(username, password, dsn) as connection:
                 'product_height': round(random.uniform(0.01, 1000), 2),
                 'product_width': round(random.uniform(0.01, 1000), 2),
                 'product_length': round(random.uniform(0.01, 1000), 2),
-                'specification': fake.text(max_nb_chars=200),
+                'specification': generate_random_text(),
                 'contractor_fk': contractor_fk
             })
 

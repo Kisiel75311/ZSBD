@@ -14,7 +14,11 @@ Vagrant.configure("2") do |config|
     config.vm.network "forwarded_port", guest: port['guest'], host: port['host']
   end
 
-  config.vm.network "private_network", ip: env_vars['general']['public_ip']
+  # Prywatna sieć z statycznym IP
+  config.vm.network "private_network", ip: env_vars['general']['public_ip'] # Uwzględnij, że musisz dodać 'private_ip' do pliku variables.yaml
+
+  # Publiczna sieć z DHCP (lub statycznym IP, jeśli wolisz)
+	config.vm.network "public_network", ip: "192.168.0.109"
 
   config.vm.provider "virtualbox" do |vb|
     vb.memory = env_vars['general']['mem_size']
