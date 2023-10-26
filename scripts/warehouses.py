@@ -38,10 +38,9 @@ def generate_num_companies_per_warehouse(n, mean=20.5, std_dev=10, min_value=1, 
     """
     Generuje listę wartości z rozkładu normalnego w zakresie od min_value do max_value.
     """
-    values = (np.random.normal(mean, std_dev, n)).astype(int)
+    values = np.random.normal(mean, std_dev, n)
     clipped_values = np.clip(values, min_value, max_value)
-    return clipped_values.tolist()
-
+    return np.round(clipped_values).astype(int).tolist()  # Zaokrąglanie wartości do najbliższej liczby całkowitej
 
 def assign_companies_to_warehouses(cursor):
     cursor.execute("SELECT id FROM Warehouses")
@@ -52,20 +51,17 @@ def assign_companies_to_warehouses(cursor):
 
     num_companies_per_warehouse = generate_num_companies_per_warehouse(len(warehouse_ids))
 
-    for warehouse_id, num_companies in tqdm(zip(warehouse_ids, num_companies_per_warehouse)):
-        available_companies = all_companies.copy()
+    for warehouse_id, num_companies in tqdm(zip(warehouse_ids, num_companies_per_warehouse), total=len(warehouse_ids)):
 
-        # Ensure we don't request more companies than available
-        num_companies = min(num_companies, len(available_companies))
+        assigned_companies = random.choices(all_companies, k=num_companies)  # Używamy choices zamiast sample, by pozwolić na powtórzenia
 
-        assigned_companies = random.sample(available_companies, num_companies)
-
-        # Add each assigned company to the Warehouse_Company table
+        # Dodajemy każdą przypisaną firmę do tabeli Warehouse_Company
         for company_id in assigned_companies:
             cursor.execute(
                 "INSERT INTO Warehouse_Company (warehouse_id, company_id) VALUES (:warehouse_id, :company_id)",
                 {'warehouse_id': warehouse_id, 'company_id': company_id}
             )
+
 
 # Connect to the database and insert data
 with cx_Oracle.connect(username, password, dsn) as connection:
@@ -78,34 +74,3 @@ with cx_Oracle.connect(username, password, dsn) as connection:
         # Commit the updates
         connection.commit()
 print("Operation completed!")
-
-
-# import numpy as np
-#
-# # ...
-#
-# # Connect to the database and insert data
-# with cx_Oracle.connect(username, password, dsn) as connection:
-#     with connection.cursor() as cursor:
-#         print("Connected successfully!")
-#
-#         # Get min and max values from companies table
-#         cursor.execute("SELECT MIN(id), MAX(id) FROM companies")
-#         min_id, max_id = cursor.fetchone()
-#
-#         for _ in tqdm(range(50000)):
-#             # Generate a list of company ids using normal distribution
-#             company_ids = np.random.normal(loc=(min_id+max_id)/2, scale=(max_id-min_id)/6, size=30).astype(int)
-#
-#             # Ensure the generated company ids are within the valid range
-#             company_ids = [max(min_id, min(max_id, company_id)) for company_id in company_ids]
-#
-#             for company_id in company_ids:
-#                 insert_data(cursor, "Warehouses", warehouse_insert_query, {
-#                     'name': fake.company_suffix(),
-#                     'address': fake.address(),
-#                     'companies_fk': company_id
-#                 })
-#         connection.commit()  # Commit after all inserts
-#
-# print("Operation completed!")
