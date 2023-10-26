@@ -19,9 +19,24 @@ def insert_data(cursor, table_name, insert_query, data):
     except cx_Oracle.Error as error:
         print(f"Error occurred when inserting into {table_name}:", error)
 
+roles_to_seed = [
+    "Accountant",  # 3% - Firma
+    "ZSBD Specialist",  # 1% - Może być w obu (Magazyn/Firma), ale zakładam tutaj Firma
+    "Customer",  # 5% - Firma
+    "Sales Representative",  # 8% - Firma
+    "Warehouse Operator",  # 25% - Magazyn
+    "Warehouse Manager",  # 2% - Magazyn
+    "Technical Support",  # 4% - Firma
+    "Stock Coordinator",  # 4% - Magazyn
+    "Forklift Operator",  # 10% - Magazyn
+    "Warehouse SafetySpec",  # 2% - Magazyn
+    "Warehouse Analyst",  # 3% - Magazyn
+    "Customer ServiceSpec",  # 10% - Firma
+    "Sales Director",  # 1% - Firma
+    "Financial Analyst",  # 2% - Firma
+    "Marketing Specialist"  # 20% - Firma
+]
 
-# Roles to seed
-roles_to_seed = ["accountant", "zsbd", "customer", "sales representative", "warehouseman", "warehouse manager", "tech support"]
 
 # Seed the Roles table
 role_insert_query = """
