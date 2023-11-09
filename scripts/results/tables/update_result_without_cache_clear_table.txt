@@ -1,0 +1,5 @@
+Transaction  Count Min Duration (ms) Max Duration (ms)  Mean Duration (ms)
+      1.sql     10           1789.18           2664.61             2204.62
+      3.sql     10           4527.76          17817.04            15521.95
+      4.sql     10           2304.90          12303.22             3494.77
+      Total     30                 -                 -           212213.37
