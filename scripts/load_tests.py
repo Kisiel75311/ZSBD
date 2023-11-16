@@ -3,7 +3,7 @@ import shutil
 import time
 import cx_Oracle
 from tqdm import tqdm
-from resaults_parser import ResultsParser
+# import resaults_parser
 
 
 class OracleClientManager:
@@ -64,11 +64,10 @@ class Database:
                     sql_statements = sql_script.split(';')
 
                 for _ in tqdm(range(execution_count), desc="Executions"):
+                    cursor.execute("SAVEPOINT before_test")
                     if clear_cache:
                         sys_cursor.execute("ALTER SYSTEM FLUSH BUFFER_CACHE")
                         sys_cursor.execute("ALTER SYSTEM FLUSH SHARED_POOL")
-
-                    cursor.execute("SAVEPOINT before_test")
                     success, elapsed_time, _ = self._executeSQLStatements(cursor, sql_statements)
                     cursor.execute("ROLLBACK TO SAVEPOINT before_test")
                     if not success:
@@ -108,15 +107,16 @@ port = "1521"
 sid = "XE"
 dsn = cx_Oracle.makedsn(hostname, port, sid)
 execution_count = 10
-clear_cache = False
+clear_cache = True
 
-operation_types = ['select', 'update', 'insert', 'delete']  # Adjust as needed
+# operation_types = ['select', 'update', 'insert', 'delete']  # Adjust as needed
+operation_types = ['select']  # Adjust as needed
 
 # Usage of OracleClientManager and Database classes
 with OracleClientManager(lib_dir):
     db = Database(zsbd_username, zsbd_password, dsn, operation_types)
     db.run(sys_username, sys_password, dsn, clear_cache, execution_count)
 
-# Parse the results
-parser = ResultsParser()
-parser.end_load_tests()
+# # Parse the results
+# parser = ResultsParser()
+# parser.end_load_tests()
