@@ -1,52 +1,93 @@
+import os
+import re
 import pandas as pd
-from pathlib import Path
 
 
-class TestResultsController:
-    def __init__(self, folder_path='results'):
-        self.folder_path = Path(folder_path)
-        pd.options.display.float_format = "{:.2f}".format
+class ResultParser:
+    def __init__(self, directory_path, performance_file_path):
+        self.directory_path = directory_path
+        self.performance_file_path = performance_file_path
 
-    def _parse_result_file(self, file_path):
-        df = pd.read_csv(file_path, names=['Transaction', 'Duration'],
-                         converters={'Duration': lambda x: float(x.replace('ms', ''))},
-                         skipinitialspace=True)
+    def calculate_total_cost(self, file_path):
+        with open(file_path, 'r') as file:
+            sql_content = file.read()
+            cost_pattern = r'\|\s*\d+\s*\|.*\|\s*(\d+K?)\s*(?:\(\d+\%CPU\))?\|'
+            costs = re.findall(cost_pattern, sql_content)
+            total_cost = 0
+            for cost in costs:
+                if 'K' in cost:
+                    total_cost += int(cost.replace('K', '')) * 1000
+                else:
+                    try:
+                        total_cost += int(cost)
+                    except ValueError:
+                        print(f"Invalid cost value: {cost}")
+        return total_cost
 
-        stats = df.groupby('Transaction').Duration.agg(['count', 'min', 'max', 'mean']).reset_index()
-        stats.columns = ['Transaction', 'Count', 'Min Duration (ms)', 'Max Duration (ms)', 'Mean Duration (ms)']
-        total_duration = df['Duration'].sum()
+    def calculate_total_cost_for_all_files(self):
+        results = []
+        for file_name in os.listdir(self.directory_path):
+            if file_name.endswith('.txt'):
+                file_path = os.path.join(self.directory_path, file_name)
+                total_cost = self.calculate_total_cost(file_path)
+                script_name = '_'.join(file_name.split('_')[1:]).rsplit('.', 1)[0]
+                results.append({'Nazwa Skryptu': script_name, 'Koszt': total_cost})
 
-        # Add total row
-        total_row = pd.Series(['Total', stats['Count'].sum(), '-', '-', total_duration],
-                              index=stats.columns)
-        stats = stats.append(total_row, ignore_index=True)
+        # Tworzenie DataFrame
+        df = pd.DataFrame(results)
+        # Obliczenie średniego kosztu dla każdego skryptu
+        avg_costs = df.groupby('Nazwa Skryptu')['Koszt'].mean().reset_index()
+        avg_costs.rename(columns={'Koszt': 'Średni Koszt'}, inplace=True)
 
-        return {'table_name': file_path.stem, 'stats': stats, 'total_duration': total_duration}
+        # Formatowanie kolumny 'Średni Koszt' aby wyświetlała liczby zamiast notacji naukowej
+        avg_costs['Średni Koszt'] = avg_costs['Średni Koszt'].apply(lambda x: f'{x:.0f}')
 
-    def _parse_all_results(self):
-        return [self._parse_result_file(file_path) for file_path in self.folder_path.glob('*.txt')]
+        # Zapisanie do pliku Markdown
+        markdown_table = avg_costs.to_markdown(index=False)
+        with open('wyniki.md', 'w') as file:
+            file.write(markdown_table)
+        return avg_costs
 
-    def _print_parsed_results(self, parsed_results):
-        for result in parsed_results:
-            print(f"Table: {result['table_name']}")
-            print(result['stats'])
-            print("\n")
+    def generate_performance_table(self):
+        # Wczytywanie danych
+        data = pd.read_csv(self.performance_file_path, header=None, names=['Iteracja', 'Nazwa Skryptu', 'Czas'],
+                           sep=', ')
 
-    def _save_table_as_txt(self, result, output_dir):
-        with open(output_dir / f"{result['table_name']}_table.txt", 'w') as f:
-            f.write(result['stats'].to_string(index=False))
+        # Konwersja czasu do wartości liczbowych (w milisekundach)
+        data['Czas'] = data['Czas'].str.replace('ms', '').astype(float)
 
-    def summarize_performance_tests(self):
-        parsed_results = self._parse_all_results()
-        self._print_parsed_results(parsed_results)
+        # Agregacja danych
+        aggregated_data = data.groupby('Nazwa Skryptu')['Czas'].agg(['mean', 'min', 'max']).reset_index()
+        aggregated_data.columns = ['Nazwa Skryptu', 'Średni Czas [ms]', 'Min. Czas [ms]', 'Max. Czas [ms]']
 
-        output_dir = self.folder_path / 'tables'
-        output_dir.mkdir(exist_ok=True)
+        # Zapisanie do pliku Markdown i zwrócenie wyniku
+        markdown_table = aggregated_data.to_markdown(index=False)
+        with open('tabela_wynikow.md', 'w') as file:
+            file.write(markdown_table)
 
-        for result in parsed_results:
-            self._save_table_as_txt(result, output_dir)
+        return aggregated_data
+
+    def merge_tables_and_save(self, cost_table, time_table, output_directory):
+        # Merge tables
+        merged_df = cost_table.merge(time_table, on='Nazwa Skryptu', how='outer')
+        merged_df.rename(columns={'Koszt': 'Średni Koszt', 'mean': 'Średni Czas [ms]', 'min': 'Min. Czas [ms]',
+                                  'max': 'Max. Czas [ms]'}, inplace=True)
+
+        # Save the merged table to the specified output path
+        output_path = os.path.join(output_directory, 'final_table.md')
+        markdown_table = merged_df.to_markdown(index=False)
+        with open(output_path, 'w') as file:
+            file.write(markdown_table)
 
 
-if __name__ == '__main__':
-    controller = TestResultsController()
-    controller.summarize_performance_tests()
+# Użycie klasy
+directory_path = 'explain_plans'  # Ścieżka do katalogu z planami
+performance_file_path = 'results/results_with_cache_clear.txt'  # Ścieżka do pliku z wynikami wydajności
+output_path = 'results/tables'  # Ścieżka do zapisania tabeli wynikowej
+
+parser = ResultParser(directory_path, performance_file_path)
+cost_table = parser.calculate_total_cost_for_all_files()
+time_table = parser.generate_performance_table()
+
+# Merge tables and save the result to the specified output path
+parser.merge_tables_and_save(cost_table, time_table, output_path)
