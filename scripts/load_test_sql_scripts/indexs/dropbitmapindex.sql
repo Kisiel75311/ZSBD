@@ -1,0 +1,9 @@
+DROP INDEX idx_products_contractor_fk;
+DROP INDEX idx_products_name;
+DROP INDEX idx_products_spec_length;
+DROP INDEX idx_documents_contractor_fk;
+DROP INDEX idx_documents_client_fk;
+DROP INDEX idx_documents_type_fk;
+DROP INDEX idx_documents_date;
+DROP INDEX idx_users_warehouse_fk;
+DROP INDEX idx_price_lists_valid_date;
