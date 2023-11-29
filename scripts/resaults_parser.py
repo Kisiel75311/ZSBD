@@ -11,18 +11,31 @@ class ResultParser:
     def calculate_total_cost(self, file_path):
         with open(file_path, 'r') as file:
             sql_content = file.read()
-            cost_pattern = r'\|\s*\d+\s*\|.*\|\s*(\d+K?)\s*(?:\(\d+\%CPU\))?\|'
-            costs = re.findall(cost_pattern, sql_content)
-            total_cost = 0
-            for cost in costs:
-                if 'K' in cost:
-                    total_cost += int(cost.replace('K', '')) * 1000
-                else:
-                    try:
-                        total_cost += int(cost)
-                    except ValueError:
-                        print(f"Invalid cost value: {cost}")
-        return total_cost
+            for line in sql_content.split('\n'):
+                if '|   0 |' in line:
+                    parts = line.split('|')
+                    # Adjust the index as necessary to target the correct column
+                    cost_part = parts[7].strip()  # Cost is assumed to be in the 8th column
+
+                    # Check if cost_part is in 'K' format (e.g., '117K')
+                    if cost_part.endswith('K'):
+                        # Remove 'K' and convert to integer, then multiply by 1000
+                        cost_value = cost_part[:-1]
+                        try:
+                            return int(float(cost_value) * 1000)
+                        except ValueError:
+                            # Log the error or handle it as needed
+                            print(f"Invalid cost value (K format): {cost_part} in file {file_path}")
+                            return None
+                    else:
+                        # Handle regular numeric values
+                        try:
+                            return int(cost_part.split()[0])
+                        except ValueError:
+                            # Log the error or handle it as needed
+                            print(f"Non-numeric cost value found: {cost_part} in file {file_path}")
+                            return None
+            return None
 
     def calculate_total_cost_for_all_files(self):
         results = []
@@ -87,6 +100,8 @@ output_path = 'results/tables'  # Ścieżka do zapisania tabeli wynikowej
 
 parser = ResultParser(directory_path, performance_file_path)
 cost_table = parser.calculate_total_cost_for_all_files()
+print(cost_table)
+# exit()
 time_table = parser.generate_performance_table()
 
 # Merge tables and save the result to the specified output path
