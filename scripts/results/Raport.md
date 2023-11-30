@@ -119,6 +119,9 @@ W tabelch przedstawione są wyniki pomiarów czasów oraz kosztów (tab1), a tak
 
 ## Wnioski na podstawie tabel
 
+- Najbardziej udało się skróić czas wykonania zapytania 7.sql około 10sec.
+- Koszty również najbardziej udało się zredukować w przypadku zapytania 7.sql o 106K.
+
 - **Zastosowanie Indeksów:** Użycie indeksów w większości przypadków znacznie poprawia wydajność zapytań, co widać w zmniejszeniu średniego czasu wykonania. Widać to szczególnie w skryptach, gdzie czas wykonania z indeksami jest znacząco krótszy w porównaniu z czasem bez indeksów.
 
 - **Porównanie Typów Indeksów:** Różnice w wydajności między indeksami typu B-tree a indeksami bitmapowymi są zróżnicowane. W niektórych przypadkach indeksy bitmapowe mają lepszy średni czas wykonania, ale nie zawsze są lepsze od indeksów B-tree. Wynika z tego, że wybór typu indeksu powinien być dokonywany indywidualnie dla każdego zapytania.
