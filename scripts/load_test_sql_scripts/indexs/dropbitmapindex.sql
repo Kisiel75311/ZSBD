@@ -1,9 +1,26 @@
-DROP INDEX idx_products_contractor_fk;
-DROP INDEX idx_products_name;
-DROP INDEX idx_products_spec_length;
-DROP INDEX idx_documents_contractor_fk;
-DROP INDEX idx_documents_client_fk;
-DROP INDEX idx_documents_type_fk;
-DROP INDEX idx_documents_date;
-DROP INDEX idx_users_warehouse_fk;
-DROP INDEX idx_price_lists_valid_date;
+-- Usuwanie bitmapowych indeksów na PRODUCTS
+DROP INDEX bmp_idx_products_name
+DROP INDEX bmp_idx_products_contractor_fk
+DROP INDEX bmp_idx_products_spec_length
+
+-- Usuwanie bitmapowych indeksów na DOCUMENTS
+DROP INDEX bmp_idx_documents_date
+DROP INDEX bmp_idx_documents_contractor_fk
+DROP INDEX bmp_idx_documents_client_fk
+DROP INDEX bmp_idx_documents_type_fk
+DROP INDEX bmp_idx_documents_client_fk_date
+
+-- Usuwanie bitmapowych indeksów na USERS
+DROP INDEX bmp_idx_users_warehouse_fk
+
+-- Usuwanie bitmapowych indeksów na PRICE_LISTS
+DROP INDEX bmp_idx_price_lists_valid_date
+
+-- Usuwanie dodatkowych bitmapowych indeksów
+DROP INDEX bmp_idx_func_documents_year
+DROP INDEX bmp_idx_document_types_abbreviation_id
+DROP INDEX bmp_idx_products_contractor_fk_length
+DROP INDEX bmp_idx_price_lists_product_fk_sale
+DROP INDEX bmp_idx_product_documents_doc_fk_amount
+DROP INDEX bmp_idx_func_products_name
+DROP INDEX bmp_idx_func_documents_date_range

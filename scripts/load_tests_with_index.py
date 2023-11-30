@@ -25,7 +25,7 @@ class Database:
         self.username = username
         self.password = password
         self.dsn = dsn
-        self._clearResultsDirectory()
+        # self._clearResultsDirectory()
         os.makedirs(self._DB_RESULTS_DIR, exist_ok=True)
 
     def _addIndexes(self, cursor, index_type):
@@ -41,6 +41,7 @@ class Database:
                         except cx_Oracle.DatabaseError as e:
                             error, = e.args
                             print(f"Error: {error.message}, SQL statement: {line}")
+                            exit(1)
 
     def _deleteIndexes(self, cursor, index_type):
         # Wybierz odpowiedni plik w zależności od typu indeksu
@@ -143,6 +144,8 @@ class Database:
         with cx_Oracle.connect(self.username, self.password, self.dsn) as connection:
             cursor = connection.cursor()
             if index_type != 'none':
+                self._deleteIndexes(cursor, index_type)
+            if index_type != 'none':
                 self._addIndexes(cursor, index_type)
             self._runSQLScripts(cursor, sql_files, execution_count, sys_username, sys_password, sys_dsn, clear_cache,
                                 index_type)
@@ -165,7 +168,7 @@ sid = "XE"
 dsn = cx_Oracle.makedsn(hostname, port, sid)
 execution_count = 10
 clear_cache = True
-index_type = ('none', 'normal', 'bitmap')
+index_type = ['none', 'normal', 'bitmap'] # 'none', 'normal', 'bitmap'
 
 # Run the load tests
 with OracleClientManager(lib_dir):
