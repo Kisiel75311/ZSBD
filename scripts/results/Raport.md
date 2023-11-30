@@ -128,4 +128,40 @@ W tabelch przedstawione są wyniki pomiarów czasów oraz kosztów (tab1), a tak
 - **Wyjątki w Wynikach:** Zdarzają się przypadki, gdzie zastosowanie indeksów nie przynosi znaczącej poprawy lub nawet pogarsza wydajność (na przykład 6.sql i 9.sql). To podkreśla potrzebę indywidualnej analizy i testowania przed zastosowaniem indeksów.
 
 ## Wyniki porównań planów wykonania zapytań
-Ze względu na duży rozmiar planów wykonania zapytań, zostały one umieszczone w .zip, który dołączony jest do raportu. Format plików pdf pozwala na łatwie przeglądanie.
+- Ze względu na duży rozmiar planów wykonania zapytań, zostały one umieszczone w .zip, który dołączony jest do raportu. Format plików pdf pozwala na łatwie przeglądanie.
+- Wszystkie pozostałe wyniki oraz skrypty sql również zostały umieszczone w .zip.
+- Legenda do wyników: none - bez indeksów, INDEX/normal - indeksy B-tree, BITMAP INDEX/bitmap - indeksy bitmapowe
+
+## Struktura Lab7.zip
+```
+Lab7
+├───PlanyWykonanTXT
+│       ...
+│
+├───PorównaniaPlanówWykonania
+│   ├───INDEX vs BITMAP INDEX
+│   │       diff_index_bitmapindex_1.sql.txt.pdf
+│   │       ...
+│   │
+│   ├───none vs BITMAP INDEX
+│   │       diff_none_bitmapindex_1.sql.txt.pdf
+│   │       ...
+│   │
+│   └───none vs INDEX
+│           diff_none_index_1.sql.txt.pdf
+│           ...
+│
+├───Tabele
+│       final_table.md
+│
+├───WynikiRaw
+│       ...
+│
+└───ZapytaniaTworząceIndeksy
+    ├───bitmap
+    │       indexs.sql
+    │
+    └───normal
+            indexs.sql
+
+```
