@@ -1,3 +1,4 @@
+-- 8.partycje.sql
 UPDATE CONTRACTORS C
 SET C.BUSINESS_NUMBER = '1234567890', -- Make sure this value is 10 characters or less
     C.COUNTRY         = 'PL'

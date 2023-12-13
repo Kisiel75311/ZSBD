@@ -101,7 +101,7 @@ class Database:
         explain_plan_dir = 'explain_plans'
         os.makedirs(explain_plan_dir, exist_ok=True)
         script_name = os.path.basename(file)
-        explain_plan_file_name = f"{index_type}_{script_name}.txt"
+        explain_plan_file_name = f"partitioned_{index_type}_{script_name}.txt"
         with open(os.path.join(explain_plan_dir, explain_plan_file_name), 'w') as f:
             for row in rows:
                 f.write(str(row) + "\n")
@@ -134,7 +134,7 @@ class Database:
 
     def _writeResultsToFile(self, iteration, file, elapsed_time, clear_cache, index_type):
         cache_status = 'with_cache_clear' if clear_cache else 'without_cache_clear'
-        result_file_name = f'results_{index_type}_{cache_status}.txt'
+        result_file_name = f'partitioned_results_{index_type}_{cache_status}.txt'
         with open(os.path.join(self._DB_RESULTS_DIR, result_file_name), 'a') as f:
             script_name = os.path.basename(file)
             f.write(f"{iteration}, {script_name}, {elapsed_time:.2f}ms\n")
@@ -158,7 +158,7 @@ class Database:
 
 # Oracle client configuration
 lib_dir = r"C:\Users\szymon.kisiela\Downloads\instantclient-basic-windows.x64-21.11.0.0.0dbru\instantclient_21_11"
-zsbd_username = "c##zsbd"
+zsbd_username = "c##zsbd_copy"
 zsbd_password = "zsbd"
 sys_username = "system"
 sys_password = "SysPassword1"
@@ -168,7 +168,7 @@ sid = "XE"
 dsn = cx_Oracle.makedsn(hostname, port, sid)
 execution_count = 10
 clear_cache = True
-index_type = ['normal', 'bitmap'] # 'none', 'normal', 'bitmap'
+index_type = ['bitmap'] # 'none', 'normal', 'bitmap'
 
 # Run the load tests
 with OracleClientManager(lib_dir):

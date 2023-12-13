@@ -48,6 +48,3 @@ CREATE INDEX idx_func_documents_year ON DOCUMENTS (EXTRACT(YEAR FROM DOCUMENT_DA
 -- Indeks funkcyjny na DOCUMENT_DATE w zakresie dat
 CREATE INDEX idx_func_documents_date_range ON DOCUMENTS (CASE WHEN DOCUMENT_DATE BETWEEN TO_DATE('2020-01-01', 'YYYY-MM-DD') AND TO_DATE('2022-12-31', 'YYYY-MM-DD') THEN 1 ELSE 0 END)
 
--- Indeks funkcyjny na PRODUCT_LENGTH i SALE w PRODUCTS i PRICE_LISTS
--- Uwaga: Ta komenda może nie działać w niektórych wersjach Oracle z powodu subzapytania w definicji indeksu.
--- CREATE INDEX idx_func_product_length_sale ON PRODUCTS (PRODUCT_LENGTH, (SELECT SALE FROM PRICE_LISTS WHERE PRODUCTS_FK = PRODUCTS.ID))

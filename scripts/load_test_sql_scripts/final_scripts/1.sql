@@ -1,5 +1,4 @@
--- Usuń rekordy z PRODUCT_DOCUMENTS, których PRODUCT_FK jest powiązany z PRODUCTS, których nazwa zawiera 'a'
--- i które są powiązane z DOCUMENTS, których DOCUMENT_DATE jest przed lub równy '2022-12-31'
+-- 1.partycje.sql
 DELETE FROM PRODUCT_DOCUMENTS PC
 WHERE PRODUCT_FK IN (
     SELECT P.ID

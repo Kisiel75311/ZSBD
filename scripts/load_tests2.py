@@ -107,7 +107,7 @@ class Database:
             f.write(f"{iteration}, {script_name}, {elapsed_time:.2f}ms\n")  # Include iteration number, script name and elapsed time in the results
 
     def run(self, sys_username, sys_password, sys_dsn, clear_cache, execution_count=1):
-        sql_files = glob.glob(os.path.join(self._SQL_SCRIPTS_BASE_PATH, '*.sql'))  # Use glob.glob() here
+        sql_files = glob.glob(os.path.join(self._SQL_SCRIPTS_BASE_PATH, '*.partycje.sql'))  # Use glob.glob() here
         with cx_Oracle.connect(self.username, self.password, self.dsn) as connection:
             cursor = connection.cursor()
             # Execute the initialization query

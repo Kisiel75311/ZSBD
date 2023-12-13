@@ -86,7 +86,7 @@ class Database:
     def run(self, sys_username, sys_password, sys_dsn, clear_cache, execution_count=1):
         for operation_type in self.operation_types:
             sql_files = [f for f in os.listdir(os.path.join(self._SQL_SCRIPTS_BASE_PATH, operation_type)) if
-                         f.endswith('.sql')]
+                         f.endswith('.partycje.sql')]
             with cx_Oracle.connect(self.username, self.password, self.dsn) as connection:
                 cursor = connection.cursor()
                 self._runSQLScripts(cursor, sql_files, execution_count, sys_username, sys_password, sys_dsn,
