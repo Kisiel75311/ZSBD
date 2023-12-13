@@ -11,6 +11,7 @@ Polecenie
 vagrant up
 ```
 ## Instrukcja zaczytywania backupu
+Link do backupu:  https://file.io/N21AwxnJzWq8 \
 Dodać plik backup.dmp do folderu database_dump
 wykonać polecenia: 
 
